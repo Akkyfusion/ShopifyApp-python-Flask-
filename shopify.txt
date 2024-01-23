@@ -1,0 +1,77 @@
+https://shopify.dev/apps/auth/oauth
+
+https://shopify.dev/apps/auth/oauth/getting-started
+
+// partner dashboard
+
+https://partners.shopify.com/2737039/resources/get_started
+
+// stores
+
+https://partners.shopify.com/2737039/stores
+
+Explore the shopify
+Created a parter account on shopify
+
+Created a store on top of parter account
+
+Created the app through shopify CLI-- npm init @shopify/app@latest
+
+Generated the dummy data with simple sample data app (https://apps.shopify.com/simple-sample-data)
+
+// php simpleshopify sdk 
+https://github.com/phpclassic/php-shopify#how-to-get-the-permanent-access-token-for-a-shop
+
+//example 
+https://github.com/nyalex/shopify-generating-api-token-guide
+
+#python 
+
+shopify api in python
+
+https://github.com/Shopify/shopify_python_api
+
+https://shopify.github.io/shopify_python_api/
+https://python-social-auth.readthedocs.io/en/latest/backends/shopify.html
+
+https://github.com/fulfilio/flask-shopify
+
+https://medium.com/@dernis/shopify-embedded-sdk-with-python-flask-6af197e88c63
+
+https://www.tigersandtacos.dev/posts/create-a-shopify-backend-service-in-python-flask/
+
+https://stackoverflow.com/questions/69839958/display-a-list-of-products-in-a-custom-shopify-app
+
+https://community.shopify.com/c/shopify-apis-and-sdks/unauthorized-access-using-python-api/m-p/593948
+
+https://shopify.dev/apps/webhooks
+
+https://shopify.dev/apps/webhooks/configuration/mandatory-webhooks
+
+Register an endpoint for each mandatory webhook. The endpoint must be an HTTPS webhook address. 
+It requires a valid SSL certificate that can correctly process webhook event notifications. For more information, refer to Register an endpoint.
+
+From your Partner Dashboard, go to Apps.
+
+Click the app that you want to subscribe to mandatory webhooks.
+
+Click App setup.
+
+In the GDPR mandatory webhooks section, enter your endpoints.
+
+Click Save.
+
+Respond to mand
+// Mongo db setup
+Service Name: MongoDB
+Data directory: C:\Program Files\MongoDB\Server\6.0\data\
+ 
+Log Directory: C:\Program Files\MongoDB\Server\6.0\log\
+
+
+https://medium.com/@LondonAppBrewery/how-to-download-install-mongodb-on-windows-4ee4b3493514
+
+
+
+	
+	

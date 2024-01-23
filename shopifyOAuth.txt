@@ -1,0 +1,169 @@
+https://github.com/phpclassic/php-shopify
+
+How to get the permanent access token for a shop?
+There is a AuthHelper class to help you getting the permanent access token from the shop using oAuth.
+
+First, you need to configure the SDK with additional parameter SharedSecret
+$config = array(
+    'ShopUrl' => 'yourshop.myshopify.com',
+    'ApiKey' => '***YOUR-PRIVATE-API-KEY***',
+    'SharedSecret' => '***YOUR-SHARED-SECRET***',
+);
+
+PHPShopify\ShopifySDK::config($config);
+Create the authentication request
+The redirect url must be white listed from your app admin as one of Application Redirect URLs.
+
+//your_authorize_url.php
+$scopes = 'read_products,write_products,read_script_tags,write_script_tags';
+//This is also valid
+//$scopes = array('read_products','write_products','read_script_tags', 'write_script_tags'); 
+$redirectUrl = 'https://yourappurl.com/your_redirect_url.php';
+
+\PHPShopify\AuthHelper::createAuthRequest($scopes, $redirectUrl);
+If you want the function to return the authentication url instead of auto-redirecting, you can set the argument $return (5th argument) to true.
+
+\PHPShopify\AuthHelper::createAuthRequest($scopes, $redirectUrl, null, null, true);
+Get the access token when redirected back to the $redirectUrl after app authorization.
+//your_redirect_url.php
+PHPShopify\ShopifySDK::config($config);
+$accessToken = \PHPShopify\AuthHelper::getAccessToken();
+//Now store it in database or somewhere else
+You can use the same page for creating the request and getting the access token (redirect url). In that case just skip the 2nd parameter $redirectUrl while calling createAuthRequest() method. The AuthHelper class will do the rest for you.
+
+//your_authorize_and_redirect_url.php
+PHPShopify\ShopifySDK::config($config);
+$accessToken = \PHPShopify\AuthHelper::createAuthRequest($scopes);
+//Now store it in database or somewhere else
+Get the ShopifySDK Object
+$shopify = new PHPShopify\ShopifySDK;
+You can provide the configuration as a parameter while instantiating the object (if you didn't configure already by calling config() method)
+
+$shopify = new PHPShopify\ShopifySDK($config);
+Now you can do get(), post(), put(), delete() calling the resources in the object oriented way. All resources are named as same as it is named in shopify API reference. (See the resource map below.)
+All the requests returns an array (which can be a single resource array or an array of multiple resources) if succeeded. When no result is expected (for example a DELETE request), an empty array will be returned.
+
+Get all product list (GET request)
+$products = $shopify->Product->get();
+Get any specific product with ID (GET request)
+$productID = 23564666666;
+$product = $shopify->Product($productID)->get();
+You can also filter the results by using the url parameters (as specified by Shopify API Reference for each specific resource).
+
+For example get the list of cancelled orders after a specified date and time (and fields specifies the data columns for each row to be rendered) :
+$params = array(
+    'status' => 'cancelled',
+    'created_at_min' => '2016-06-25T16:15:47-04:00',
+    'fields' => 'id,line_items,name,total_price'
+);
+
+$orders = $shopify->Order->get($params);
+Create a new order (POST Request)
+$order = array (
+    "email" => "foo@example.com",
+    "fulfillment_status" => "unfulfilled",
+    "line_items" => [
+      [
+          "variant_id" => 27535413959,
+          "quantity" => 5
+      ]
+    ]
+);
+
+$shopify->Order->post($order);
+Note that you don't need to wrap the data array with the resource key (order in this case), which is the expected syntax from Shopify API. This is automatically handled by this SDK.
+
+Update an order (PUT Request)
+$updateInfo = array (
+    "fulfillment_status" => "fulfilled",
+);
+
+$shopify->Order($orderID)->put($updateInfo);
+Remove a Webhook (DELETE request)
+$webHookID = 453487303;
+
+$shopify->Webhook($webHookID)->delete();
+The child resources can be used in a nested way.
+You must provide the ID of the parent resource when trying to get any child resource
+
+For example, get the images of a product (GET request)
+$productID = 23564666666;
+$productImages = $shopify->Product($productID)->Image->get();
+Add a new address for a customer (POST Request)
+$address = array(
+    "address1" => "129 Oak St",
+    "city" => "Ottawa",
+    "province" => "ON",
+    "phone" => "555-1212",
+    "zip" => "123 ABC",
+    "last_name" => "Lastnameson",
+    "first_name" => "Mother",
+    "country" => "CA",
+);
+
+$customerID = 4425749127;
+
+$shopify->Customer($customerID)->Address->post($address);
+Create a fulfillment event (POST request)
+$fulfillmentEvent = array(
+    "status" => "in_transit"
+);
+
+$shopify->Order($orderID)->Fulfillment($fulfillmentID)->Event->post($fulfillmentEvent);
+Update a Blog article (PUT request)
+$blogID = 23564666666;
+$articleID = 125336666;
+$updateArtilceInfo = array(
+    "title" => "My new Title",
+    "author" => "Your name",
+    "tags" => "Tags, Will Be, Updated",
+    "body_html" => "<p>Look, I can even update through a web service.<\/p>",
+);
+$shopify->Blog($blogID)->Article($articleID)->put($updateArtilceInfo);
+Delete any specific article from a specific blog (DELETE request)
+$blogArticle = $shopify->Blog($blogID)->Article($articleID)->delete();
+GraphQL v1.1
+The GraphQL Admin API is a GraphQL-based alternative to the REST-based Admin API, and makes the functionality of the Shopify admin available at a single GraphQL endpoint. The full set of supported types can be found in the GraphQL Admin API reference. You can simply call the GraphQL resource and make a post request with a GraphQL string:
+
+The GraphQL Admin API requires an access token for making authenticated requests. You can obtain an access token either by creating a private app and using that app's API password, or by following the OAuth authorization process. See GraphQL Authentication Guide
+
+$graphQL = <<<Query
+query {
+  shop {
+    name
+    primaryDomain {
+      url
+      host
+    }
+  }
+}
+Query;
+
+$data = $shopify->GraphQL->post($graphQL);
+Variables
+If you want to use GraphQL variables, you need to put the variables in an array and give it as the 4th argument of the post() method. The 2nd and 3rd arguments don't have any use in GraphQL, but are there to keep similarity with other requests, you can just keep those as null. Here is an example:
+
+$graphQL = <<<Query
+mutation ($input: CustomerInput!) {
+  customerCreate(input: $input)
+  {
+    customer {
+      id
+      displayName
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}
+Query;
+
+$variables = [
+  "input" => [
+    "firstName" => "Greg",
+    "lastName" => "Variables",
+    "email" => "gregvariables@teleworm.us"
+  ]
+]
+$shopify->GraphQL->post($graphQL, null, null, $variables);
